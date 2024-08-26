@@ -65,6 +65,39 @@ module.exports = {
         });
     },
 
+    Read: async (req, res) => {
+        const reservation = await Reservation.findById(req.params.id);
+
+        // create swagger tags
+        /**
+         * @swagger
+         * /reservations/{id}:
+         *   get:
+         *     tags:
+         *       - Reservations
+         *     description: Returns a single reservation
+         *     produces:
+         *       - application/json
+         *     parameters:
+         *       - name: id
+         *         in: path
+         *         description: ID of reservation to return
+         *         required: true
+         *         type: string
+         *     responses:
+         *       200:
+         *         description: A single reservation
+         *         schema:
+         *           $ref: '#/definitions/Reservation'
+         *       500:
+         *         description: Internal server error
+         */
+        res.status(200).send({
+            error: false,
+            data: reservation
+        });
+    },
+
     Update: async (req, res) => {
         const reservation = await Reservation.findByIdAndUpdate(req.params.id);
 

@@ -142,4 +142,41 @@ module.exports = {
             message: 'Passenger updated successfully'
         });
 
+    },
+
+    Delete: async (req, res) => {
+
+        const passenger = await Passenger.findByIdAndDelete(req.params.id);
+
+        // create swagger tags
+        /**
+         * @swagger
+         * /passengers/{id}:
+         *   delete:
+         *     tags:
+         *       - Passengers
+         *     description: Deletes a single passenger
+         *     produces:
+         *       - application/json
+         *     parameters:
+         *       - name: id
+         *         in: path
+         *         description: ID of passenger to delete
+         *         required: true
+         *         type: string
+         *     responses:
+         *       200:
+         *         description: Successfully deleted
+         *         schema:
+         *           $ref: '#/definitions/Passenger'
+         *       500:
+         *         description: Internal server error
+         */
+        res.status(200).send({
+            error: false,
+            data: passenger,
+            message: 'Passenger deleted successfully'
+        });
+
     }
+}

@@ -1,5 +1,4 @@
-const mongoose = require('mongoose')
-
+const mongoose = require('mongoose');
 
 const User = require('./users');
 
@@ -36,16 +35,15 @@ const passengerSchema = new mongoose.Schema({
             "Email must be in the correct format.",
         ],
     },
-    createdID: {
+    createdId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
         required: true
     }
 },
 {
-
     collection: 'passengers',
     timestamps: true
-    })
+});
 
 module.exports = mongoose.model('Passenger', passengerSchema);

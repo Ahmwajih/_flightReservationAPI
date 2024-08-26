@@ -7,7 +7,7 @@ router.route('/')
     .post(Flight.Create);
 
 router.route('/:id')
-    .get(Flight.Get)
+    .get(Flight.Read)
     .put(Flight.Update)
     .delete(Flight.Delete);
 

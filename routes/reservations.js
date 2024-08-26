@@ -7,7 +7,7 @@ router.route('/')
     .post(Reservation.Create);
 
 router.route('/:id')
-    .get(Reservation.Get)
+    .get(Reservation.Read)
     .put(Reservation.Update)
     .delete(Reservation.Delete);
 

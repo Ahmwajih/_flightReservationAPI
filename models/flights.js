@@ -1,6 +1,6 @@
-const mongoose = require('mongoose')
+const mongoose = require('mongoose');
 
-const user = require('./users');
+const User = require('./users');
 const flightSchema = new mongoose.Schema(
     {
         flightNumber: {

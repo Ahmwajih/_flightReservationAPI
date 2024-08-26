@@ -1,8 +1,7 @@
-const mongoose = require('mongoose')
+const mongoose = require('mongoose');
 
 const User = require('./users');
 const Flight = require('./flights');
-
 
 const reservationSchema = new mongoose.Schema({
     flightId: {
@@ -14,7 +13,7 @@ const reservationSchema = new mongoose.Schema({
         type: String,
         required: true
     },
- createdId: {
+    createdId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
         required: true
@@ -28,6 +27,5 @@ const reservationSchema = new mongoose.Schema({
     collection: 'reservations',
     timestamps: true
 });
-
 
 module.exports = mongoose.model('Reservation', reservationSchema);

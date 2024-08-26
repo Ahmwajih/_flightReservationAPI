@@ -7,7 +7,7 @@ router.route('/')
     .post(Passenger.Create);
 
 router.route('/:id')
-    .get(Passenger.Get)
+    .get(Passenger.Read)
     .put(Passenger.Update)
     .delete(Passenger.Delete);
 
