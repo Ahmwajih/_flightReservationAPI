@@ -12,6 +12,12 @@ app.use(express.json());
 require('express-async-errors');
 app.use(require('cors')());
 app.use(require('./middlewares/errorHandler'));
+app.use(require('./middlewares/auth'));
+// app.use(require('./middlewares/permission'));
+app.use(require('./middlewares/logger'));
+app.use(require('./middlewares/FIlterSort'));
+
+
 
 const MainRouter = require('./routes/index');
 app.use('/', MainRouter);

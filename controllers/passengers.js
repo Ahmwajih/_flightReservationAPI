@@ -4,7 +4,7 @@ module.exports = {
 
     List: async (req, res) => {
         const passengers = await Passenger.find();
-
+        const data = await res.getModelList(User)
         // create swagger tags
         /**
          * @swagger

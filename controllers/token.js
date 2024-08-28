@@ -4,7 +4,6 @@ module.exports = {
 
     list: async (req, res) => {
         // #swagger.ignore = true
-
         const data = await res.getModelList(Token)
 
         res.status(200).send({

@@ -1,9 +1,8 @@
 const User = require('../models/users');
-
 module.exports = {
     List: async (req, res) => {
         const users = await User.find();
-
+        const data = await res.getModelListDetails(User)
         // create swagger tags
         /**
          * @swagger
@@ -25,7 +24,7 @@ module.exports = {
         res.status(200).send({
             error: false,
             data: users,
-            details: await res.getModelListDetails(User),
+            details:await res.getModelListDetails(User),
             message: 'Users retrieved successfully'
         });
     },

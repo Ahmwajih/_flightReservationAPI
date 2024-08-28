@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 const crypto = require('node:crypto'),
     keyCode = process.env.SECRET_KEY,
     loopCount = 10_000,

@@ -9,6 +9,8 @@ module.exports = {
             res.errorStatusCode = 403
             throw new Error('NoPermission: You must login.')
         }
+
+        next()
     },
 
     isAdmin: (req, res, next) => {
@@ -20,6 +22,7 @@ module.exports = {
             res.errorStatusCode = 403
             throw new Error('NoPermission: You must login and to be Admin.')
         }
+        next()
     },
 
     isStaff: (req, res, next) => {
@@ -30,6 +33,7 @@ module.exports = {
             res.errorStatuisCode = 403
             throw new Error("NoPermission: You must login and be a Staff member.")
         }
+        next()
     },
 
     isActive: (req, res, next) => {
@@ -40,6 +44,7 @@ module.exports = {
             res.errorStatuisCode = 403
             throw new Error("NoPermission: You must be an active Staff member.")
         }
+        next()
     },
 
 }

@@ -1,177 +1,58 @@
-const User = require("../models/users");
-const Token = require("../models/token");
-const pwEncrypt = require("../helpers/pwEncrypt");
-const jwt = require("jsonwebtoken");
+const User = require('../models/users');
+const Token = require('../models/token');
+const pwEncrypt = require('../helpers/pwEncrypt');
 
 module.exports = {
-  Login: async (req, res) => {
-    // swagger tags
-    /**
-     * @swagger
-     * /auth/login:
-     *   post:
-     *     tags:
-     *       - Auth
-     *     description: Login to the application
-     *     produces:
-     *       - application/json
-     *     parameters:
-     *       - name: username
-     *         description: Username to use for login.
-     *         in: formData
-     *         required: true
-     *         type: string
-     *       - name: password
-     *         description: User's password.
-     *         in: formData
-     *         required: true
-     *         type: string
-     *     responses:
-     *       200:
-     *         description: login
-     *         schema:
-     *           $ref: '#/definitions/User'
-     *       500:
-     *         description: Internal server error
-     */
-    const { username, password } = req.body;
-    const user = await User.findOne({ username });
-
-    if (username && password) {
-      if (user && user.password === pwEncrypt(password)) {
-        if (user.isActive) {
-          let tokendata = await Token.findOne({ userId: user._id });
-          if (!tokendata) {
-            const tokenkey = pwEncrypt(user._id + Date.now());
-            tokendata = await Token.create({ userId: user._id, token: tokenkey });
-          }
-
-          const accessData = user.toJSON(); // Valuable data.
-          const accessTime = '1h';
-          const accessToken = jwt.sign(accessData, process.env.ACCESS_KEY, { expiresIn: accessTime });
-
-          const refreshData = { id: user._id, password: user.password }; // Checkable data.
-          const refreshTime = '3d';
-          const refreshToken = jwt.sign(refreshData, process.env.REFRESH_KEY, { expiresIn: refreshTime });
-
-          res.status(200).send({
-            error: false,
-            data: user,
-            token: tokendata.token,
-            bearer: {
-              access: accessToken,
-              refresh: refreshToken
-            },
-            message: "Login successful",
-          });
-        } else {
-          res.status(401).send({
-            error: true,
-            message: "Invalid login credentials",
-          });
-        }
-      } else {
-        res.status(401).send({
-          error: true,
-          message: "Invalid login credentials",
-        });
-      }
-    }
-  },
-
-  refresh: async (req, res) => {
-    /*
-        #swagger.tags = ['Authentication']
-        #swagger.summary = 'JWT: Refresh'
-        #swagger.description = 'Refresh accessToken with refreshToken'
-        #swagger.parameters['body'] = {
-            in: 'body',
-            required: true,
-            schema: {
-                bearer: {
-                    refresh: '...refreshToken...'
-                }
-            }
-        }
-    */
-
-    const refreshToken = req.body?.bearer?.refresh;
-
-    if (refreshToken) {
-      try {
-        const jwtData = await jwt.verify(refreshToken, process.env.REFRESH_KEY);
-
-        const { id, password } = jwtData;
-
-        if (id && password) {
-          const user = await User.findOne({ _id: id });
-
-          if (user && user.password == password) {
-            if (user.isActive) {
-              // JWT AccessToken:
-              const accessToken = jwt.sign(user.toJSON(), process.env.ACCESS_KEY, { expiresIn: '30m' });
-
-              res.status(200).send({
-                error: false,
-                bearer: {
-                  access: accessToken
-                }
-              });
-            } else {
-              res.status(401).send({
+    Login: async (req, res) => {
+        const { username, password } = req.body;
+        if (!username || !password) {
+            return res.status(400).send({
                 error: true,
-                message: 'This account is not active.'
-              });
-            }
-          } else {
-            res.status(401).send({
-              error: true,
-              message: 'Wrong id or password.'
+                message: 'Username and password are required',
             });
-          }
         } else {
-          res.status(401).send({
-            error: true,
-            message: 'There is not id and password in refreshToken.'
-          });
+            const user = await User.findOne({ $or: [{ username }] });
+            console.log(user.password);
+            if (user && user.password == pwEncrypt(password)) {
+                if (user.isActive) {
+                    const token = await Token.create({ userId: user._id, token: pwEncrypt(`${user._id}${Date.now()}`) });
+                    console.log(token);
+                    return res.status(200).send({
+                        error: false,
+                        data: token,
+                        message: 'Login successful',
+                    });
+                } else {
+                    return res.status(403).send({
+                        error: true,
+                        message: 'User is not active',
+                    });
+                }
+            } else {
+                return res.status(401).send({
+                    error: true,
+                    message: 'Invalid username or password',
+                });
+            }
         }
-      } catch (error) {
-        res.status(401).send({
-          error: true,
-          message: 'Invalid refresh token.'
+    },
+
+    logout: async (req, res) => {
+
+    const auth = req.headers.authorization;
+    const tokenkey = auth ?  auth.split(' ')[1] : null; 
+    const result = await Token.deleteOne({ token: tokenkey});
+    if (result.deletedCount > 0) {
+        return res.status(200).send({
+            error: false,
+            message: 'Logout successful',
+            result: result,
         });
-      }
     } else {
-      res.status(401).send({
-        error: true,
-        message: 'Please enter token.refresh'
-      });
+        return res.status(404).send({
+            error: true,
+            message: 'Token not found',
+        });
     }
-  },
-
-  logout: async (req, res) => {
-    /*
-        #swagger.tags = ["Authentication"]
-        #swagger.summary = "SimpleToken: Logout"
-        #swagger.description = 'Delete token key.'
-    */
-
-    const auth = req.headers?.authorization || null; // Token ...tokenKey...
-    const tokenKey = auth ? auth.split(' ') : null; // ['Token', '...tokenKey...']
-
-    if (tokenKey && tokenKey[1]) {
-      const tokenData = await Token.deleteOne({ token: tokenKey[1] });
-
-      res.send({
-        error: false,
-        message: 'Logout was OK.',
-        data: tokenData
-      });
-    } else {
-      res.status(401).send({
-        error: true,
-        message: 'Invalid token.'
-      });
     }
-  }
 };

@@ -1,5 +1,7 @@
 const mongoose = require('mongoose');
 
+const pwEncrypt = require('../helpers/pwEncrypt');
+
 const userSchema = new mongoose.Schema(
   {
     username: {
@@ -22,6 +24,7 @@ const userSchema = new mongoose.Schema(
         },
         "Password must be at least 8 characters long and contain at least one number and one letter.",
       ],
+      set: (password)=>pwEncrypt(password)
     },
     email: {
       type: String,

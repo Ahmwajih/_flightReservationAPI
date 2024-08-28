@@ -1,9 +1,11 @@
 const Reservation = require('../models/reservations');
 
+
+
 module.exports = {
     List: async (req, res) => {
         const reservations = await Reservation.find();
-
+        const data = await res.getModelList(User)
         // create swagger tags
         /**
          * @swagger

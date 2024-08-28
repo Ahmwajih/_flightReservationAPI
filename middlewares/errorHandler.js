@@ -7,4 +7,6 @@ module.exports = (err, req, res, next) => {
         body: req.body,
         stack: err.stack
     });
+
+    next();
 }
